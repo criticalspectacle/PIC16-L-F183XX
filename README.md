@@ -22,7 +22,7 @@ PIC16-L-F183XX Summary
 - 추가적으로 필요할 수도 있는 핀목록
     - 아날로그 모듈에 외부전압이 사용될 때, VREF+/VREF- 핀 연결 필요
 
-* 최소연결해야하는 핀들 회로도
+* 권장되는 최소 핀 연결 회로도
   
   <img width="300" alt="RasberryPiImagerIcon" src="https://github.com/criticalspectacle/PIC16-L-F183XX/blob/main/img/2-1.png?raw=true">
 
@@ -35,8 +35,9 @@ VDD와 VSS같은 파워공급핀들의 모든 짝은 디커플링 캐패시터�
 - 디 커플링 캐패시터 사용 규칙
     - **캐패시터 종류과 값**: 0.1 마이크로 패럿(100 나노패럿), 10-20V 캐패시터 권장. 캐패시터는 low-ESR(Equivalent Series Resistance) device를 사용하고, 공진주파수(resonance frequency)는 200MHz 보다 높아야 한다. Ceramic capacitor가 권장된다.
     - **프린트 된 회로기판Circuit board에 위치**: 디커플링 캐패시터는 핀에 가능한 가깝게 위치해야 한다. 기기의 같은 면의 보드에 위치하는 것을 추천, 간격이 좁으면, 캐패시터는 via를 사용하는 PCB의 다른 레이어에 위치해도 된다. 근데 어쨌든 핀이랑 캐패시터 사이의 trace length의 길이는 0.25inch(6mm)보다 길면 안된다.
-    - **높은 주파수 노이즈 다루기**: 수십 MHz보다 높은 노이즈가 보드에서 발생한다면, 두번째 ceramic 타입의 캐패시터를 디커플링 캐패시터 위에 병렬적으로 추가하자. 두번 째 캐패시터의 값은 0.01 ~ 0.001 마이크로 패럿 사이가 되어야 한다. 요지는 각각 주요한 디커플링 캐패시터 옆에 두번째 캐패시터를 위치하라는 것이다. 높은 속도의 회로 디자인에서, 10년치 용량을 가능한 파워와 그라운드핀에 가깝게 위치하는 걸 고려하자.(예를 들면, 0.1 마이크로 패럿에 병렬적으로 0.001 마이크로 패럿위치하기)
-    - **성능 극대화**: 전원공급회로의 보드레이아웃에서, 전원을 작동하고, 먼저 디 커플링 캐패시터로, 그 다음에 디바이스 핀으로 trace가 반환된다. 디 커플링 캐패시터가 먼저 power chain에 있는것을 확인해야한다. 캐패시터랑 파워핀 사이에 trace length를 유지하면서 PCB trace inductance를 감소시키는것이 중요하다.
+    - **높은 주파수 노이즈 다루기**: 수십 MHz보다 높은 노이즈가 보드에서 발생한다면, 두번째 ceramic 타입의 캐패시터를 디커플링 캐패시터 위에 병렬적으로 추가하자. 두번 째 캐패시터의 값은 0.01 ~ 0.001 마이크로 패럿 사이가 되어야 한다. 요지는 각각 주요한 디커플링 캐패시터 옆에 두번째 캐패시터를 위치하라는 것이다. 높은 속도의 회로 디자인에서, 10년치 용량(a decade pair of capacitances)을 가능한 파워와 그라운드핀에 가깝게 위치하는 걸 고려하자.(예를 들면, 0.1 마이크로 패럿에 병렬적으로 0.001 마이크로 패럿 위치시키기)
+      - capacitance는 전류가 변화할 때, 신호를 통과시키려는 성질 또는 그 정도, inductance는 전류가 흐를때, 전류의 변화를 막으려는 성질 (출처: [http://www.rfdh.com/bas_rf/begin/lc.htm](http://www.rfdh.com/bas_rf/begin/lc.htm))
+    - **성능 극대화**: 전원공급회로의 보드레이아웃에서, 전원을 작동하고, 먼저 디 커플링 캐패시터로, 그 다음에 디바이스 핀으로 trace가 반환된다. 디 커플링 캐패시터가 먼저 power chain에 있는 것을 확인해야한다. 캐패시터랑 파워핀 사이에 trace length를 유지하면서 PCB trace inductance를 감소시키는것이 중요하다.
 
 2.2.2 TANK CAPACITORS
 
@@ -51,7 +52,7 @@ MCLR핀은 세 특정한 기기 기능을 제공한다.
 - Device Input Pin(MCLR이 0일때)
 - Device Programming and Debugging
 
-만약 프로그램과 디버깅이 요구되지 않는다면, Application은 MCLRE configuration bit를 1에 설정하고, 그 핀을 digital input으로 사용하거나 MCLRE Configiretation bit를 정리한다. 그리고 핀이 internal weak pull-up에 사용되도록 열어둔다. 다른 컴포넌트들에 더해서, 가짜 전압 하락으로 리셋에 대한 응용 프로그램의 저항을 증가시키는것이 도움이 될 수 있습니다. 일반적인 configuration은 2-1에 나와있습니다. 어플리케이션 요구에 따라 다른 회로 디자인이 진행될 수 있다. 
+만약 프로그램과 디버깅이 요구되지 않는다면, Application은 MCLRE configuration bit를 1에 설정하고, 그 핀을 digital input으로 사용하거나 MCLRE Configiretation bit를 정리한다. 그리고 핀이 internal weak pull-up에 사용되도록 열어둔다. 다른 컴포넌트들에 더해서, 응용 프로그램의 저항을 증가시키는 것은 전압 하락의 Spurious(통신 시스템에서 목적으로 하는 주파수 이외의 주파수성분(불요파)를 통칭한 말)리셋에 도움이 될 수 있다. 일반적인 configuration은 2-1에 나와있다. 어플리케이션 요구에 따라 다른 회로 디자인이 진행될 수 있다. 
 
 프로그래밍하고 디버깅 하는 동안에, 핀에 추가된 저항과 정전용량capacitance은 반드시 고려되어야 한다. 기기 프로그래머와 디버거는 MCLR 핀을 작동시킨다. 결과적으로 특정한 전압레벨(VIH &VIL)과 빠른 신호 변화는 역으로 영향받아서는 안된다. 그러므로 프로그래밍하고 디버깅작동중에는 프로그래머 MCLR/Vpp 아웃풋은 R1이 MCLR핀으로부터 capacitor(C1)과 분리되기 위해 핀에 직접적으로 연결되어야한다. 
 
