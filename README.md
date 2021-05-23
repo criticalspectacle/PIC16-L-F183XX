@@ -107,3 +107,5 @@ application의 routing과 I/O할당을 설계할 때, 인접한 포트 핀과 os
 ## 2.6 Unused I/Os
 
 사용되지 않는 입출력 핀들은 output으로 설정되어야하고 logic low 상태로 구동되어야 한다. 대안으로, 사용하지 않는 핀들에 1 kΩ ~10kΩ 저항을 Vss에 연결해서 출력 로직을 low로 만들어라
+
+
