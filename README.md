@@ -22,9 +22,9 @@ PIC16-L-F183XX Summary
 - 추가적으로 필요할 수도 있는 핀목록
     - 아날로그 모듈에 외부전압이 사용될 때, VREF+/VREF- 핀 연결 필요
 
-<img width="400" alt="RasberryPiImagerIcon" src="/Users/suhyouri/Documents/collaboration/PIC16-L-F183XX/img/2-1.png">
-
-최소연결해야하는 핀들 회로도
+* 최소연결해야하는 핀들 회로도
+  
+  <img width="300" alt="RasberryPiImagerIcon" src="https://github.com/criticalspectacle/PIC16-L-F183XX/blob/main/img/2-1.png?raw=true">
 
 2.2 전원 공급 핀 Power Supply Pins 
 ---
