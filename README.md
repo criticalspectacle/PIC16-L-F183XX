@@ -57,3 +57,53 @@ MCLR핀은 세 특정한 기기 기능을 제공한다.
 
 MCLR핀과 관련있는 어떤 컴포넌트라도 핀에 0.25inch(6mm)안에 위치되어야 한다.
 
+
+## 2.4 ICSP™ Pins
+
+[ICSP?](http://ww1.microchip.com/downloads/en/devicedoc/30277d.pdf) 
+
+ISP(In-System Programming)? 장치가 회로기판에 배치된 이후에 프로그래밍이 가능한 기술 
+
+ICSP?(In-Circuit Serial Programming)? 향상된 ISP기술 
+
+ICSPCLK, ICSPDAT 핀들의 목적:  In-Circuit Serial Programming(ICSP), debugging
+
+ICSP connector와 ICSP pins의 길이는 가능한 짧은 것이 좋다.
+
+ICSP connector가 ESD event를 겪는다면, 100Ω을 넘지않은 몇 십 짜리 옴의 저항값을 가진 직렬저항을 권장한다.
+
+ICSPCLK, ICSPDAT핀의 Pull-up저항, 직령 다이오드, 캐패시터는 programmer/debugger와 장치간의 통신을 방해하지 않는것이 좋다.
+
+만약 개별 부품이 
+
+If such discrete components are an application requirement, they should be isolated from the programmer by resistors between the application and the device pins or removed from the circuit during programming.
+
+또는 개별 장치 Flash 프로그래밍 스펙(capacitive loading 제한, VIH, VIL조건에 대한 정보가 있는 )의  AC/DC 특성과 timing 요구사항 정보를 참조해라
+
+장치 emulation을 위해서는, 장치에 프로그램된 "Communication Channel Select"를 확인해하고, ICSP에서 Microchip으로의 물리적인 연결을 매치해라 
+
+## 2.5 External Oscillator Pins
+
+capacitor의 역할은 전기를 모아서 "충전과 방전"을 반복하는 것
+
+The PIC16(L)F183XX 계열은 2개의 external crystal oscillator 중 하나를 선택적으로 지원한다. : a high-frequency primary oscillator, a low-frequency secondary oscillator. 
+
+둘 중 하나를 EXTOSC = EC(L/M/H) 또는 SOSCBE로 설정해 external digital clock signal을 우회할 수 있다.
+
+oscillator회로는 장치와 같은 면의 보드에 배치되어야 한다. oscillator회로를 회로부품과 핀들사이의 간격이 0.5inch(12mm)이하로 각 oscillator핀들에 가깝게 배치해라.
+
+부하 캐패시터(load capacitor)는 보드의 같은 측면의 오실레이터 옆에 놓여야한다.
+
+주변 회로들로 부터 분리하기 위해서는 oscillator(발진기)회로 주위로 접지된 구리pour?를 사용해라. 접지된 구리pour는 MCU ground에 직접적으로 연결되어야 한다. 어떠한 signal traces나 power traces도 ground pour 안에서 실행하지 마라. 만약 양면 보드를 사용한다면,  crystal 이 위치한 반대쪽 면의 보드에대한 어떠한 traces도 피해라 . 
+
+Layout 제안은 그림과 같다.
+
+![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/122e9fa0-6715-4261-b296-60602a85db07/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/122e9fa0-6715-4261-b296-60602a85db07/Untitled.png)
+
+In-line packages는 oscillator pins을 완전히 포함하는 단일방면 레이아웃으로 처리 될 수 있다. fine-pitch packages가 항상 핀들과 부품들을 완전히 둘러싸는 것이 가능한 것은 아니다.
+
+application의 routing과 I/O할당을 설계할 때, 인접한 포트 핀과 oscillator 가까이에 있는다른 신호들이 benign(양성?)인지 확인해라(고주파가 없는지?, 짧은 rise and fall 시간, 그외 유사한 노이즈)
+
+## 2.6 Unused I/Os
+
+사용되지 않는 입출력 핀들은 output으로 설정되어야하고 logic low 상태로 구동되어야 한다. 대안으로, 사용하지 않는 핀들에 1 kΩ ~10kΩ 저항을 Vss에 연결해서 출력 로직을 low로 만들어라
