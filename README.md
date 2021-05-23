@@ -98,7 +98,7 @@ oscillator회로는 장치와 같은 면의 보드에 배치되어야 한다. os
 
 Layout 제안은 그림과 같다.
 
-![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/122e9fa0-6715-4261-b296-60602a85db07/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/122e9fa0-6715-4261-b296-60602a85db07/Untitled.png)
+<img width="300" alt="Single and Dual-Sided Layouts" src="https://github.com/criticalspectacle/PIC16-L-F183XX/blob/main/img/layout.png?raw=true">
 
 In-line packages는 oscillator pins을 완전히 포함하는 단일방면 레이아웃으로 처리 될 수 있다. fine-pitch packages가 항상 핀들과 부품들을 완전히 둘러싸는 것이 가능한 것은 아니다.
 
@@ -109,3 +109,111 @@ application의 routing과 I/O할당을 설계할 때, 인접한 포트 핀과 os
 사용되지 않는 입출력 핀들은 output으로 설정되어야하고 logic low 상태로 구동되어야 한다. 대안으로, 사용하지 않는 핀들에 1 kΩ ~10kΩ 저항을 Vss에 연결해서 출력 로직을 low로 만들어라
 
 
+**3.0 향상된 미드레인지 CPU ( 밴치마크 점수가 중간인 cpu)**
+
+이 디바이스 제품군에는 향상된 미드 레인지 8bit CPU 코어가 포함되어 있다.
+
+CPU 에는 48개의 명령이 있다. 인터럽트 기능은 컨텍스트 자동저장기능이 포함되어 있다. 하드웨어 스택의 깊이는 16단계이며 오버플로 및 언더플로 재설정 기능이 있다. 직접, 간접, 상대 주소 지정모드를 사용할 수 있다.
+
+[https://www.geeksforgeeks.org/difference-between-relative-addressing-mode-and-direct-addressing-mode/](https://www.geeksforgeeks.org/difference-between-relative-addressing-mode-and-direct-addressing-mode/)
+
+두개의 FSR은 프로그램과 데이터 메모리를 읽는 기능을 제공한다.
+
+- FSR = 데이터 메모리의 간접주소 지정을 위한 메모리 포인터로 사용되는 16비트 레지스터이다. 간접 주소 지정을 통해 사용자는 지침에 고정된 주소를 지정하지 않고도 데이터 메모리의 위치에 액세스할 수 있습니다.FSR은 RAM에 위치하며 프로그램 제어 하에 조작할 수 있다.
+
+**3.1 자동 인터럽트 컨텍스트 저장**
+
+인터럽트 중에는 특정 레지스터는 자동으로 세도우 레지스터에 저장되며 인터럽트로부터 반환될 때 복원된다.
+
+이것은 스택 공간과 사용자 코드를 절약한다.
+
+=> 8.5 **Automatic Context Saving**
+
+인터럽트를 입력하면 반환 pc 주소가 스택에 저장된다. 또한 다음의 레지스터는 세도우 레지스터에 자동저장된다.
+
+• Wregister	
+
+• STATUSregister(exceptforTOandPD)
+
+• BSRregister	
+
+• FSRregisters	• PCLATHregister
+
+인터럽트 서비스 루틴ISR 을 종료하면 이런 레지스터가 자동으로 복원된다.
+
+ISR 중 이 레지스터에 대한 어떠한 수정사항도 손실된다.
+
+만약 이 레지스터에 대한 어떠한 수정을 원한다면,
+
+해당하는 섀도 레지스터를 수정해야 하며 ISR을 종료할 때 값이 복원됩니다.
+
+섀도 레지스터는 뱅크 31에서 사용할 수 있으며 읽기 및 쓰기 가능합니다.
+
+사용자의 응용 프로그램에 따라 다른 레지스터도 저장해야 할 수 있습니다.
+
+**3.2 오버플로 및 언더플로가 포함된 16 레벨 스택**
+
+이 장치들은 15비트 폭과 16단어 깊이의 하드웨어 스택 메모리를 가지고 있다.
+
+스택 오버플로 또는 언더플로우는 PCON0 레지스터에서 적절한 비트(STKOVF 또는 STKUNF)를 설정하고, 이것을 선택하면 소프트웨어 재설정의 원인이 될 것이다.
+
+=> **4.4 Stack**
+
+모든 디바이스는 16레벨 에 15비트 폭의  하드웨어 스택을 가진다. 스택 공간은 프로그램 또는 데이터 공간의 일부가 아니다. 브랜치에 의한 인터럽트나 CALL 또는 CALLLW 명령이 실행될때 pc는 스택에 푸시된다. 스택은 RETURN, RETLW 또는 RETFIE 명령이 실행될 때 POP됩니다. PCLATH는 PUSH 또는 POP 작업의 영향을 받지 않습니다.
+
+스택은 순환버퍼로 작동하며 STVREN 비트가 ‘0’으로 프로그래밍 된 경우 스택 오버 플로 또는 언더 플로가 발생할때 재설정하지 않는다. 즉, 스택을 16회 푸시한 후 17번째 푸시는 저장된 값을 덮어쓴다. 18번째 푸시는 두번째 푸시를 덮어쓴다.
+
+리셋이 활성화 되었는지에 상관없이 STKOVF 및 STKUNF 플래그 비트는 Overflow/Underflow(오버플로/언더플로)에 설정된다.
+
+컨피그레이션 단어의 STVREN 비트가 ‘1’로 프로그래밍 된 경우, 스택이 16번째 레벨을 초과하거나 첫 번째 레벨을 초과하여 POP되면 장치가 재설정되어 PCON 레지스터에 적절한 비트(STCOFF 또는 STKUNF)를 설정합니다.
+
+Note 1 : PUSH 또는 POP라는 명령 / 니모닉(연상기호)은 없습니다. 이것은 CALL, CALLW, RETURN, RETLW 및 RETFIE 명령의 실행이나 인터럽트 주소로의 벡터링에서 발생하는 동작들이다.
+
+⇒ 4.4.1 ACCESSING THE STACK
+
+스택은 TOSH, TOSL 및 STKPTR 레지스터를 통해 액세스할 수 있습니다. STKPTR은 스택 포인터의 현재 값입니다. TOSH:TOSL 레지스터 페어는 스택의 TOP를 가리킨다. 두 레지스터 모두 읽고 쓰는 것이 가능하다. TOS는 PC의 15비트 크기를 위해 TOSH와 TOSL로 분할됩니다. 스택에 액세스하려면 TOSH:TOSL를 배치하는 STKPTR 값을 조정하고 TOSH:TOSL 읽고 씁니다. STKPTR은 오버플로우 및 언더플로우를 탐지할 수 있는 5비트입니다.
+
+Note : 인터럽트가 활성화된 동안 STKPTR을 수정할 때 주의해야 합니다.
+
+정상적인 프로그램 작동중에, CALL, CALLW 및 Interrupts는 STKPTR을 증가시키고, RETLW, RETFIE는 STKPTR을 감소시킨다. 언제든지 STKPTR는 스택에서 사용가능한 레벨이 얼마나 남았는지 확인할 수 있다.
+
+STKPTR은 항상 스택에서 현재 사용되는 위치를 가리킵니다. 따라서 CALL 또는 CALLW는 STKPTR을 증가시킨 다음 PC를 쓰고 반환하면 PC를 쓴 다음 STKPTR을 감소시킵니다.
+
+<img width="300" alt="Accessing the Stack EX01" src="https://github.com/criticalspectacle/PIC16-L-F183XX/blob/main/img/stackEx01.png?raw=true">
+
+<img width="300" alt="Accessing the Stack EX04" src="https://github.com/criticalspectacle/PIC16-L-F183XX/blob/main/img/stackEx02.png?raw=true">
+
+**3.3 파일 선택 레지스터**
+
+여기에는 두개의 16비트 FSR이 있다. FSR은 모든 파일 레지스터 프로그램 메모리, 그리고 모든 메모리를 위한 하나의 더이터 포인터를 허락하는 데이터 EEPROM을 엑세스 할 수 있다. FRS가 프로그램 메모리를 가리키면, 데이터를 패치하는 INDF 명령에는 하나의 추가적인 인스트럭션 사이클이 있다. 범용 메모리는 이제 80바이트 이상의 큰 연속데이터에 엑세스 하는 능력을 제공하면서 선형적으로 처리될 수 있다.
+
+⇒ 4.5 Indirect Addressing
+
+INDFN 레지스터는 물리적 레지스터가 아닙니다. NDFN 레지스터에 액세스하는 모든 명령은 실제로 파일 선택 레지스터(FSR)에서 지정한 주소로 레지스터에 액세스합니다. 만약 FSRn 주소가 두개의 INDFN 레지스터 중 하나를 지정하면, 읽은 값은 '0'이 되고 쓰기는 발생하지 않는다.(Status 비트는 영향을 받을 수도 있지만)
+
+FSRn 레지스터 값은 FSRnH 및 FSRnL 쌍에 의해 생성됩니다.
+
+FSR 레지스터는 65536 위치의 주소 공간을 허용하는 16비트 주소를 형성한다.
+
+이 위치는 네 개의 메모리 영역으로 나뉩니다.
+
+- Traditional/BankedDataMemory
+• LinearDataMemory
+• ProgramFlashMemory
+• EEPROM
+
+*아래 각각의 설명을 추가해야함
+
+**3.4 명령 집합**
+
+여기에는 향상된 미드레인지 CPU가 CPU의 기능을 지원하기 위한 48가지 명령이 있습니다.
+
+⇒ 34.0 INSTRUCTION SET SUMMARY
+
+각 명령어는 연산 코드(opcode)와 필요한 모든 피연산자를 포함하는 14비트 워드이다. opcode는 세 가지 넓은 범주로 나뉜다.
+
+- ByteOriented
+- BitOriented
+- LiteralandControl
+
+리터럴 및 컨트롤 범주는 가장 다양한 명령어 형식을 포함한다. (표 34-3 참고)
